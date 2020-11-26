@@ -21,14 +21,15 @@ defmodule MockMe do
 
    _config/test.exs_
     ```
-    # optional - defaults
-    config :mock_me, :server,
-      port: 9081,
-      accepts_content_types: ["application/json"]
-
     # required
-    config :mock_me, :routes,
-      test_cases: [
+    config :mock_me,
+      # optional - defaults
+      server: [
+        port: 9081,
+        accepts_content_types: ["application/json"]
+      ],
+      #required
+      routes: [
         %{
           # required
           name: :auth_jwt,

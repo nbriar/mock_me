@@ -19,7 +19,7 @@ defmodule MockMeTest do
       ]
     }
 
-    Application.put_env(:mock_me, :routes, test_cases: [config_route])
+    Application.put_env(:mock_me, :routes, [config_route])
 
     assert MockMe.set_test_case(:test_me, :wipe_me)
     assert MockMe.test_case_value(:test_me) == :wipe_me

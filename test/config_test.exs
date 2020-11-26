@@ -37,7 +37,7 @@ defmodule MockMe.ConfigTest do
       }
     ]
 
-    Application.put_env(:mock_me, :routes, test_cases: routes)
+    Application.put_env(:mock_me, :routes, routes)
 
     assert [%Route{} | _] = Config.routes()
   end
@@ -53,7 +53,7 @@ defmodule MockMe.ConfigTest do
       ]
     }
 
-    Application.put_env(:mock_me, :routes, test_cases: [config_route])
+    Application.put_env(:mock_me, :routes, [config_route])
     [route | _] = Config.routes()
 
     [resp | _] = route.responses

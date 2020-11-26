@@ -8,16 +8,17 @@ defmodule MockMe.Config do
 
    _config/test.exs_
     ```
-    # optional - defaults to this
-    config :mock_me, :server,
-      # whatever port you want the mock server to listen on
-      port: 9081,
-      # A list of accepted HTTP content-types
-      accepts_content_types: ["application/json"]
 
-    # required
-    config :mock_me, :routes,
-      test_cases: [
+    config :mock_me,
+      # optional - defaults to this
+      server: [
+      # whatever port you want the mock server to listen on
+        port: 9081,
+      # A list of accepted HTTP content-types
+        accepts_content_types: ["application/json"]
+      ],
+      # required
+      routes: [
         %{
           # required
           name: :auth_jwt,
@@ -30,6 +31,9 @@ defmodule MockMe.Config do
           content_type: "application/json",
           responses: [
             # recommended to create a test module which holds your response bodies
+            # response bodies must already be serialized to a string
+            # the first item in this list is considered the default case
+            # :status_code is optional and defaults to 200
             %{flag: :success, body: "some-body", status_code: 200},
             %{flag: :not_found, body: "not-found", status_code: 404}
           ]
@@ -63,7 +67,7 @@ defmodule MockMe.Config do
   def routes do
     routes_conf = Application.get_env(:mock_me, :routes)
 
-    Enum.map(routes_conf[:test_cases], fn route ->
+    Enum.map(routes_conf, fn route ->
       %Route{
         name: route[:name],
         path: route[:path]
