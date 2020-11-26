@@ -18,17 +18,6 @@ defmodule MockMe.ConfigTest do
     assert Config.server(:port) == 9081
   end
 
-  test "server(:accepts_content_types) pulls returns from config" do
-    Application.put_env(:mock_me, :server, accepts_content_types: ["some/application"])
-
-    assert Config.server(:accepts_content_types) == ["some/application"]
-  end
-
-  test "server(:accepts_content_types) pulls returns default" do
-    Application.put_env(:mock_me, :server, accepts_content_types: nil)
-    assert Config.server(:accepts_content_types) == ["application/json"]
-  end
-
   test "routes/0 gets a list of MockMe.Routes" do
     routes = [
       %{

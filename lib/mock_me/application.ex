@@ -5,10 +5,12 @@ defmodule MockMe.Application do
 
   use Application
 
+  alias MockMe.Config
+
   def start(_type, _args) do
     children = [
       {MockMe.State, [%{}]},
-      {Plug.Cowboy, scheme: :http, plug: MockMe.Server, options: [port: 9081]}
+      {Plug.Cowboy, scheme: :http, plug: MockMe.Server, options: [port: Config.server(:port)]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

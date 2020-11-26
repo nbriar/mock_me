@@ -8,13 +8,7 @@ defmodule MockMe.Server do
 
   alias MockMe.Config
 
-  plug(Plug.Logger, log: :error)
-
-  plug(Plug.Parsers,
-    parsers: [:json],
-    pass: Config.server(:accepts_content_types),
-    json_decoder: Jason
-  )
+  plug(Plug.Logger, log: :info)
 
   plug(:match)
   plug(:dispatch)
@@ -32,6 +26,8 @@ defmodule MockMe.Server do
 
       case response do
         nil ->
+          Logger.error("No mock for test_case [#{route.name}, #{test_case_value}]")
+
           conn
           |> Plug.Conn.send_resp(
             500,

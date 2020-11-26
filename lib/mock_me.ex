@@ -4,13 +4,20 @@ defmodule MockMe do
   solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
   the `MockMe.set_test_case(:test, :result)` function in your tests.
 
-  What this package does isn't terribly difficult to set up on your own in each project and can be accomplished in 2 files
+  # Need to give my theory on mocking third party APIs.
+
+  What this package does isn't terribly difficult to set up on your own. In fact it can be accomplished in 2 files
   if you just want to set things up statically. After doing that very thing in several projects, I got tired of copying
   those files and changing the endpoints, so I decided to create this package.
 
   Largely, this package is config sugar around those 2 files and allows
   the developer to do some very minor setup while defining all mocked routes in the config file in a simple way that is readable
   and understandable.
+
+  Under the hood this package uses [Plug.Router](https://hexdocs.pm/plug/Plug.Router.html) to manage the routes
+  and [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html) for the HTTP server.
+  The path in the routes can be any valid path accepted by [Plug.Router](https://hexdocs.pm/plug/Plug.Router.html).
+  See the [Plug.Router](https://hexdocs.pm/plug/Plug.Router.html) docs or examples for more information.
 
   The only things you need to do are:
   1. configure your code to point to the mock server url `http://localhost:<port (9081)>`
@@ -25,10 +32,9 @@ defmodule MockMe do
     config :mock_me,
       # optional - defaults
       server: [
-        port: 9081,
-        accepts_content_types: ["application/json"]
+        port: 9081
       ],
-      #required
+      # required
       routes: [
         %{
           # required
@@ -56,6 +62,75 @@ defmodule MockMe do
   ## Phoenix Example
     Need an example and link to the github repo
 
+    _config/test.exs_
+    ```
+    config :mock_me_phoenix_example, swapi_url: "http://localhost:9081/swapi"
+
+    # Define your mocked Routes here
+    config :mock_me,
+      routes: [
+        %{
+          name: :swapi_people,
+          path: "/swapi/people/1/",
+          responses: [
+            %{flag: :success, body: MockMePhoenixExample.Test.Mocks.SWAPI.people(:success), status_code: 200},
+            %{flag: :not_found, body: MockMePhoenixExample.Test.Mocks.SWAPI.people(:failure), status_code: 404}
+          ]
+        }
+      ]
+    ```
+
+    _test/test_helpers.ex_
+    ```
+    ExUnit.start()
+    MockMe.start()
+    ```
+
+    _lib/services/star_wars.ex_
+    ```
+    defmodule MockMePhoenixExample.StarWars do
+      use HTTPoison.Base
+
+      def base_url do
+        Application.get_env(:mock_me_phoenix_example, :swapi_url)
+      end
+
+      def process_url(url) do
+        base_url() <> url
+      end
+
+      def people(id) do
+        case get("/people/id/") do
+          {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
+            {:ok, Jason.decode!(response_body)}
+
+          {:ok, %HTTPoison.Response{status_code: 404}} ->
+            {:not_found, "The person with id was not found"}
+
+          {:ok, %HTTPoison.Response{status_code: status_code}} ->
+            {:error, "Failed with status code: status_code"}
+
+          {:error, %HTTPoison.Error{reason: reason}} ->
+            {:error, "Failed with reason: reason"}
+        end
+      end
+    end
+    ```
+
+    _test/support/mocks/swapi.ex_
+    ```
+    defmodule MockMePhoenixExample.Test.Mocks.SWAPI do
+      def people(:success) do
+        "{\"name\":\"Luke Skywalker\",\"height\":\"172\",\"mass\":\"77\",\"hair_color\":\"blond\",\"skin_color\":\"fair\",\"eye_color\":\"blue\",\"birth_year\":\"19BBY\",\"gender\":\"male\",\"homeworld\":\"http://swapi.dev/api/planets/1/\",\"films\":[\"http://swapi.dev/api/films/1/\",\"http://swapi.dev/api/films/2/\",\"http://swapi.dev/api/films/3/\",\"http://swapi.dev/api/films/6/\"],\"species\":[],\"vehicles\":[\"http://swapi.dev/api/vehicles/14/\",\"http://swapi.dev/api/vehicles/30/\"],\"starships\":[\"http://swapi.dev/api/starships/12/\",\"http://swapi.dev/api/starships/22/\"],\"created\":\"2014-12-09T13:50:51.644000Z\",\"edited\":\"2014-12-20T21:17:56.891000Z\",\"url\":\"http://swapi.dev/api/people/1/\"}"
+      end
+
+      def people(:failure) do
+        %{error: "something went wrong"} |> Jason.encode!()
+      end
+    end
+    ```
+
+
   ## Mix Application Example
     Need an example and link to the github repo
 
@@ -78,6 +153,14 @@ defmodule MockMe do
 
   @doc """
   Used to reset the test state to the config defaults once tests in a module have been performed or before tests are run.
+
+  Use this in the `setup` block of your tests or inside a test which you need to be sure uses the defaults.
+
+  ```
+  setup do
+    MockMe.reset_test_cases()
+  end
+  ```
   """
   def reset_test_cases do
     Agent.update(State, fn _ ->
@@ -115,5 +198,13 @@ defmodule MockMe do
       res = route.responses |> List.first()
       res.flag
     end
+  end
+
+  @doc """
+  Start the application in the unit tests.
+  """
+  def start() do
+    MockMe.Application.start(:normal, [])
+    MockMe.reset_test_cases()
   end
 end

@@ -13,9 +13,7 @@ defmodule MockMe.Config do
       # optional - defaults to this
       server: [
       # whatever port you want the mock server to listen on
-        port: 9081,
-      # A list of accepted HTTP content-types
-        accepts_content_types: ["application/json"]
+        port: 9081
       ],
       # required
       routes: [
@@ -54,27 +52,21 @@ defmodule MockMe.Config do
     end
   end
 
-  def server(:accepts_content_types) do
-    default = ["application/json"]
-    config = Application.get_env(:mock_me, :server)
-
-    case config do
-      nil -> default
-      conf -> conf[:accepts_content_types] || default
-    end
-  end
-
   def routes do
-    routes_conf = Application.get_env(:mock_me, :routes)
+    case Application.get_env(:mock_me, :routes) do
+      nil ->
+        []
 
-    Enum.map(routes_conf, fn route ->
-      %Route{
-        name: route[:name],
-        path: route[:path]
-      }
-      |> Map.merge(route)
-      |> format_responses()
-    end)
+      routes_conf ->
+        Enum.map(routes_conf, fn route ->
+          %Route{
+            name: route[:name],
+            path: route[:path]
+          }
+          |> Map.merge(route)
+          |> format_responses()
+        end)
+    end
   end
 
   def format_responses(route) do

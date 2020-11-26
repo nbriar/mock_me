@@ -31,6 +31,6 @@ defmodule MockMeTest do
   # Need to write the actual integration tests
 
   test "some stuff" do
-    HTTPoison.get!("http://localhost:9081") |> IO.inspect()
+    assert {:ok, _} = HTTPoison.get("http://localhost:9081")
   end
 end
