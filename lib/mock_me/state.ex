@@ -22,7 +22,7 @@ defmodule MockMe.State do
     }
   }
   ```
-  These values are populated from `MockMe.add_routes/1` and then toggled using `MockMe.set_test_case(:route_name, :route_flag)`.
+  These values are populated from `MockMe.add_routes/1` and then toggled using `MockMe.set_flag(:route_name, :route_flag)`.
   """
   def child_spec(_) do
     %{

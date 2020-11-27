@@ -15,4 +15,4 @@ route = %MockMe.Route{
 MockMe.add_routes([route])
 MockMe.start_server()
 
-MockMe.reset_test_cases()
+MockMe.reset_flags()
