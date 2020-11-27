@@ -4,24 +4,13 @@ defmodule MockMeTest do
   doctest MockMe
 
   test "has a state agent started" do
-    assert MockMe.set_test_case(:jwt, :success)
-    assert MockMe.test_case_value(:jwt) == :success
+    assert MockMe.set_test_case(:jwt, :failure)
+    assert MockMe.test_case_value(:jwt) == :failure
   end
 
   test "reset_test_cases/0 resets state" do
-    config_resp = %{flag: :success, body: "some-body"}
-
-    config_route = %{
-      name: :test_me,
-      path: "/jwt",
-      responses: [
-        config_resp
-      ]
-    }
-
-    Application.put_env(:mock_me, :routes, [config_route])
-
     assert MockMe.set_test_case(:test_me, :wipe_me)
+
     assert MockMe.test_case_value(:test_me) == :wipe_me
 
     assert MockMe.reset_test_cases()
@@ -31,6 +20,7 @@ defmodule MockMeTest do
   # Need to write the actual integration tests
 
   test "some stuff" do
-    assert {:ok, _} = HTTPoison.get("http://localhost:9081")
+    assert {:ok, %HTTPoison.Response{status_code: 200}} =
+             HTTPoison.get("http://localhost:9081/test-path")
   end
 end

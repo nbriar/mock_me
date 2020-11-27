@@ -21,43 +21,18 @@ defmodule MockMe do
 
   The only things you need to do are:
   1. configure your code to point to the mock server url `http://localhost:<port (9081)>`
-  1. configure your routes in your `config/test.exs` file
-  1. start `MockMe` under your supervision tree for your tests
+  1. configure your routes in your `test/test_helper.exs` file
+  1. start the `MockMe` server in your `/test/test_help.exs` file
+  1. use `MockMe` in your tests
 
   ## Example Config
 
    _config/test.exs_
     ```
-    # required
-    config :mock_me,
-      # optional - defaults
-      server: [
-        port: 9081
-      ],
-      # required
-      routes: [
-        %{
-          # required
-          name: :auth_jwt,
-          # required
-          path: "/jwt",
-          # optional below here
-          # these are the defaults except for :responses which will default to an empty array
-          # :get, :post, :put, :patch, :delete and :options or a list [:get, :post]
-          method: :get,
-          # Any valid http content-type, this is the response type from the mock server
-          content_type: "application/json",
-          responses: [
-            # recommended to create a test module which holds your response bodies
-            # response bodies must already be serialized to a string
-            # the first item in this list is considered the default case
-            # :status_code is optional and defaults to 200
-            %{flag: :success, body: "some-body", status_code: 200},
-            %{flag: :not_found, body: "not-found", status_code: 404}
-          ]
-        }
-      ]
+    config :mock_me, port: 9081
     ```
+
+    This is only used if you want to change the port the mock server listens to. The default port is 9081.
 
   ## Phoenix Example
     Need an example and link to the github repo
@@ -65,25 +40,40 @@ defmodule MockMe do
     _config/test.exs_
     ```
     config :mock_me_phoenix_example, swapi_url: "http://localhost:9081/swapi"
-
-    # Define your mocked Routes here
-    config :mock_me,
-      routes: [
-        %{
-          name: :swapi_people,
-          path: "/swapi/people/1/",
-          responses: [
-            %{flag: :success, body: MockMePhoenixExample.Test.Mocks.SWAPI.people(:success), status_code: 200},
-            %{flag: :not_found, body: MockMePhoenixExample.Test.Mocks.SWAPI.people(:failure), status_code: 404}
-          ]
-        }
-      ]
     ```
 
     _test/test_helpers.ex_
     ```
     ExUnit.start()
     MockMe.start()
+
+    routes = [
+      %MockMe.Route{
+        name: :swapi_people,
+        path: "/swapi/people/:id",
+        responses: [
+          %MockMe.Response{
+            flag: :success,
+            body: MockMePhoenixExample.Test.Mocks.SWAPI.people(:success)
+          },
+          %MockMe.Response{flag: :not_found, body: "people-failure", status_code: 404}
+        ]
+      },
+      %MockMe.Route{
+        name: :swapi_starships,
+        path: "/swapi/starships/:id",
+        responses: [
+          %MockMe.Response{
+            flag: :success,
+            body: MockMePhoenixExample.Test.Mocks.SWAPI.starships(:success)
+          },
+          %MockMe.Response{flag: :not_found, body: "starships-failure", status_code: 404}
+        ]
+      }
+    ]
+
+    MockMe.add_routes(routes)
+    MockMe.start_server()
     ```
 
     _lib/services/star_wars.ex_
@@ -138,17 +128,57 @@ defmodule MockMe do
     Need an example and link to the github repo
   """
   alias MockMe.State
-  alias MockMe.Config
+  alias MockMe.Route
+
+  @doc """
+  Add routes to your server. This goes in your `test/test_helper.exs` file.
+
+  Defined routes using the `MockMe.Route` struct.
+
+  ### Example
+  _test/test_helper.exs_
+  ```
+  route = %Route{
+    name: :test_me,
+    path: "/jwt",
+    responses: [
+      %Response{flag: :success, body: "some-body"}
+    ]
+  }
+
+  MockMe.start(:state)
+  MockMe.add_routes([route])
+  MockMe.start(:server)
+  ```
+  """
+  def add_routes(routes) do
+    Enum.each(routes, fn route ->
+      add_route(route)
+    end)
+
+    reset_test_cases()
+  end
+
+  @doc """
+  Used to get the defined routes from state.
+  """
+  def routes do
+    get_state()[:routes]
+  end
 
   @doc """
   The primary function in your tests. Call this to toggle responses from the mock server.
 
   To use this in your tests you can call:
 
-  `MockMe.set_test_case(:some_route_name, :some_route_flag)`
+  `MockMe.set_test_case(:route_name, :route_flag)`
+
+  The response with the defined `:flag` will be returned when the endpoint is called.
   """
   def set_test_case(route_name, response_flag) do
-    Agent.update(State, &Map.put(&1, route_name, response_flag))
+    Agent.update(State, fn state ->
+      %{state | cases: Map.put(state[:cases], route_name, response_flag)}
+    end)
   end
 
   @doc """
@@ -163,32 +193,41 @@ defmodule MockMe do
   ```
   """
   def reset_test_cases do
-    Agent.update(State, fn _ ->
-      get_state_from_config()
+    Agent.update(State, fn state ->
+      %{state | cases: get_test_cases_from_routes(state[:routes])}
     end)
   end
 
   @doc """
-  Called inside each endoint to determine which response to return. You should never need to call this in your code except in the case of troubleshooting.
+  Called inside each endoint to determine which response to return.
+  You should never need to call this in your code except in the case of troubleshooting.
   """
   @spec test_case_value(any) :: atom()
   def test_case_value(name) do
-    Agent.get(State, &Map.get(&1, name))
+    Agent.get(State, fn state ->
+      Map.get(state[:cases], name)
+    end)
   end
 
   @doc """
   A convienience function to view the state of the mocks.
   Primarily used for troubleshooting. You shouldn't need this in any of your tests.
   """
-  @spec all_test_cases :: map()
-  def all_test_cases do
+  @spec get_state :: map()
+  def get_state do
     Agent.get(State, fn state -> state end)
   end
 
-  defp get_state_from_config do
-    Enum.reduce(Config.routes(), %{}, fn route, acc ->
-      Map.put(acc, route.name, get_default_flag(route))
-    end)
+  defp get_test_cases_from_routes(routes) do
+    case routes do
+      nil ->
+        %{}
+
+      routes ->
+        Enum.reduce(routes, %{}, fn route, acc ->
+          Map.put(acc, route.name, get_default_flag(route))
+        end)
+    end
   end
 
   defp get_default_flag(route) do
@@ -201,10 +240,56 @@ defmodule MockMe do
   end
 
   @doc """
-  Start the application in the unit tests.
+  Start the application state in the unit tests.
+  This prepares the state to accept the configuration for your mocked routes.
+  To add routes use the `MockMe.add_routes/1` functions.
   """
-  def start() do
+  def start do
     MockMe.Application.start(:normal, [])
     MockMe.reset_test_cases()
+  end
+
+  def start_server do
+    build_server()
+
+    {:ok, _pid} =
+      DynamicSupervisor.start_child(
+        MockMe.DynamicSupervisor,
+        {Plug.Cowboy,
+         scheme: :http,
+         plug: MockMe.Server,
+         options: [port: Application.get_env(:mock_me, :port, 9081)]}
+      )
+  end
+
+  defp build_server do
+    contents =
+      quote do
+        use Plug.Router
+        use Plug.Debugger
+        require Logger
+
+        alias MockMe.Config
+        alias MockMe.ResponsePlug
+
+        plug(Plug.Logger, log: :info)
+
+        plug(:match)
+        plug(:dispatch)
+
+        Enum.each(MockMe.routes(), fn route ->
+          match(route.path, via: route.method, to: ResponsePlug, assigns: %{route: route})
+        end)
+
+        match(_, to: ResponsePlug)
+      end
+
+    Module.create(MockMe.Server, contents, Macro.Env.location(__ENV__))
+  end
+
+  defp add_route(%Route{} = route) do
+    Agent.update(State, fn state ->
+      %{state | routes: [route | state[:routes]]}
+    end)
   end
 end

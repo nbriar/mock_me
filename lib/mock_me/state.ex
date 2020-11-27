@@ -7,12 +7,22 @@ defmodule MockMe.State do
 
   ```
   %{
-    auth_api_jwt: :success,
-    auth_api_validate: :failure,
-    auth_api_destroy: :success
+    routes: [
+      %MockMe.Route{
+        name: :test_me,
+        path: "/test-path",
+        responses: [
+          %MockMe.Response{flag: :success, body: "test-body"},
+          %MockMe.Response{flag: :failure, body: "test-failure-body"}
+        ]
+      }
+    ],
+    cases: %{
+      test_me: :success
+    }
   }
   ```
-  These values are populated from the config and then toggled using the `MockMe.set_test_case(:route_name, :response)` function.
+  These values are populated from `MockMe.add_routes/1` and then toggled using `MockMe.set_test_case(:route_name, :route_flag)`.
   """
   def child_spec(_) do
     %{
@@ -20,7 +30,7 @@ defmodule MockMe.State do
       start:
         {__MODULE__, :start_link,
          [
-           %{}
+           %{routes: [], cases: %{}}
          ]},
       restart: :permanent,
       shutdown: 5000,

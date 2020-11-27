@@ -11,6 +11,7 @@ defmodule MockMe.Response do
       status_code: 200              #default
     }
     ```
+
   """
   @enforce_keys [:flag, :body]
   defstruct [:flag, :body, status_code: 200]

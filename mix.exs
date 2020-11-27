@@ -1,4 +1,5 @@
 defmodule MockMe.MixProject do
+  @moduledoc false
   use Mix.Project
 
   def project do
@@ -15,7 +16,6 @@ defmodule MockMe.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      start_phases: [{:populate_state_from_config, []}],
       mod: {MockMe.Application, []}
     ]
   end
