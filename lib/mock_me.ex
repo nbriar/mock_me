@@ -127,8 +127,9 @@ defmodule MockMe do
   ## Mix Package Example
     Need an example and link to the github repo
   """
-  alias MockMe.State
+
   alias MockMe.Route
+  alias MockMe.State
 
   @doc """
   Add routes to your server. This goes in your `test/test_helper.exs` file.
