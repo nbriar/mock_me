@@ -5,16 +5,16 @@ defmodule MockMeTest do
 
   test "has a state agent started" do
     assert MockMe.set_flag(:jwt, :failure)
-    assert MockMe.test_case_value(:jwt) == :failure
+    assert MockMe.flag_value(:jwt) == :failure
   end
 
   test "reset_flags/0 resets state" do
     assert MockMe.set_flag(:test_me, :wipe_me)
 
-    assert MockMe.test_case_value(:test_me) == :wipe_me
+    assert MockMe.flag_value(:test_me) == :wipe_me
 
     assert MockMe.reset_flags()
-    assert MockMe.test_case_value(:test_me) == :success
+    assert MockMe.flag_value(:test_me) == :success
   end
 
   # Need to write the actual integration tests

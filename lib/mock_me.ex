@@ -210,8 +210,8 @@ defmodule MockMe do
   Called inside each endoint to determine which response to return.
   You should never need to call this in your code except in the case of troubleshooting.
   """
-  @spec test_case_value(any) :: atom()
-  def test_case_value(name) do
+  @spec flag_value(any) :: atom()
+  def flag_value(name) do
     Agent.get(State, fn state ->
       Map.get(state[:cases], name)
     end)

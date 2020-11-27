@@ -8,22 +8,22 @@ defmodule MockMe.ResponsePlug do
 
   def call(%{assigns: %{route: route}} = conn, _opts) do
     conn = put_resp_header(conn, "content-type", route.content_type)
-    test_case_value = MockMe.test_case_value(route.name)
+    flag_value = MockMe.flag_value(route.name)
 
     response =
       Enum.find(route.responses, fn res ->
-        res.flag == test_case_value
+        res.flag == flag_value
       end)
 
     case response do
       nil ->
-        Logger.error("No mock for test_case [#{route.name}, #{test_case_value}]")
+        Logger.error("No mock for test_case [#{route.name}, #{flag_value}]")
 
         conn
         |> send_resp(
           500,
           Jason.encode!(%{
-            data: "there's no mock for that test case [#{route.name}, #{test_case_value}]"
+            data: "there's no mock for that test case [#{route.name}, #{flag_value}]"
           })
         )
 
