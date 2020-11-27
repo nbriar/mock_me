@@ -23,7 +23,7 @@ defmodule MockMe do
   exactly what is being returned in requests.
   1. Set up your own mock server which will respond to real HTTP requests and thus test your entire code path just like it would perform in production.
 
-  Of all the options I prefer this one and it's what I do in all my Elixir projects. If you do it from scratch, it's only 2 files and takes very little
+  Of all the options I prefer the last and it's what I do in all my Elixir projects. If you do it from scratch, it's only 2 files and takes very little
   effort. However, I got tired of setting it up in all my projects so I built an abstration with simple configuration that will build the server and run
   it for you in your tests.
 
@@ -143,6 +143,9 @@ defmodule MockMe do
 
   Defined routes using the `MockMe.Route` struct.
 
+  The first response in the list of responses is considered the default response and will be used
+  in the case where you haven't set a flag in your tests or when `reset_flags/0` is called.
+
   ### Example
   _test/test_helper.exs_
   ```
@@ -154,9 +157,9 @@ defmodule MockMe do
     ]
   }
 
-  MockMe.start(:state)
+  MockMe.start()
   MockMe.add_routes([route])
-  MockMe.start(:server)
+  MockMe.start_server()
   ```
   """
   def add_routes(routes) do
@@ -257,6 +260,9 @@ defmodule MockMe do
     MockMe.reset_flags()
   end
 
+  @doc """
+  Used to start the mock server after routes have been added to state using `add_routes/1`
+  """
   def start_server do
     build_server()
 
