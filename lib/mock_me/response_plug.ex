@@ -1,6 +1,6 @@
 defmodule MockMe.ResponsePlug do
   @moduledoc """
-  Used to validate the jwt in the pipelines
+  Used to handle the toggling of the responses based on the route flag.
   """
   import Plug.Conn
   require Logger

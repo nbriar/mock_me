@@ -5,10 +5,14 @@ defmodule MockMe.MixProject do
   def project do
     [
       app: :mock_me,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      name: "MockMe",
+      description: description(),
+      package: package(),
+      source_url: "https://github.com/nbriar/mock_me"
     ]
   end
 
@@ -29,6 +33,26 @@ defmodule MockMe.MixProject do
       {:httpoison, "~> 1.7", [only: [:dev, :test], runtime: false]},
       {:plug, "~> 1.11"},
       {:plug_cowboy, "~> 2.0"}
+    ]
+  end
+
+  defp description() do
+    """
+    MockMe is a simple mock server used to mock out your third party services in your tests. Unlike many mocking
+    solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
+    the `MockMe.set_response(:test, :result)` function in your tests.
+    """
+  end
+
+  defp package() do
+    [
+      # These are the default files included in the package
+      files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/nbriar/mock_me",
+        "ExampleApp" => "https://github.com/nbriar/mock_me_phoenix_example"
+      }
     ]
   end
 end
