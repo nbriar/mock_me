@@ -4,12 +4,12 @@ defmodule MockMeTest do
   doctest MockMe
 
   test "has a state agent started" do
-    assert MockMe.set_flag(:jwt, :failure)
+    assert MockMe.set_response(:jwt, :failure)
     assert MockMe.flag_value(:jwt) == :failure
   end
 
   test "reset_flags/0 resets state" do
-    assert MockMe.set_flag(:test_me, :wipe_me)
+    assert MockMe.set_response(:test_me, :wipe_me)
 
     assert MockMe.flag_value(:test_me) == :wipe_me
 

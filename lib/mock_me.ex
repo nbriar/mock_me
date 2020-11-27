@@ -2,7 +2,7 @@ defmodule MockMe do
   @moduledoc """
   MockMe is a simple mock server used to mock out your third party services in your tests. Unlike many mocking
   solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
-  the `MockMe.set_flag(:test, :result)` function in your tests.
+  the `MockMe.set_response(:test, :result)` function in your tests.
 
   Under the hood this package uses [Plug.Router](https://hexdocs.pm/plug/Plug.Router.html) to manage the routes
   and [Plug.Cowboy](https://hexdocs.pm/plug_cowboy/Plug.Cowboy.html) for the HTTP server.
@@ -113,22 +113,22 @@ defmodule MockMe do
       # end
 
       test "people/1 returns success" do
-        MockMe.set_flag(:swapi_people, :success)
+        MockMe.set_response(:swapi_people, :success)
         assert {:ok, _} = StarWars.people(1)
       end
 
       test "people/1 returns not found" do
-        MockMe.set_flag(:swapi_people, :not_found)
+        MockMe.set_response(:swapi_people, :not_found)
         assert {:not_found, _} = StarWars.people(1)
       end
 
       test "starships/1 returns success" do
-        MockMe.set_flag(:swapi_starships, :success)
+        MockMe.set_response(:swapi_starships, :success)
         assert {:ok, _} = StarWars.starships(1)
       end
 
       test "starships/1 returns not found" do
-        MockMe.set_flag(:swapi_starships, :not_found)
+        MockMe.set_response(:swapi_starships, :not_found)
         assert {:not_found, _} = StarWars.starships(1)
       end
     end
@@ -179,11 +179,11 @@ defmodule MockMe do
 
   To use this in your tests you can call:
 
-  `MockMe.set_flag(:route_name, :route_flag)`
+  `MockMe.set_response(:route_name, :route_flag)`
 
   The response with the defined `:flag` will be returned when the endpoint is called.
   """
-  def set_flag(route_name, response_flag) do
+  def set_response(route_name, response_flag) do
     Agent.update(State, fn state ->
       %{state | cases: Map.put(state[:cases], route_name, response_flag)}
     end)
