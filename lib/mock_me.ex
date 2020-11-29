@@ -21,6 +21,9 @@ defmodule MockMe do
   1. Use something like VCR which will make an initial request to the live third party service the first time and then playback that
   recorded response on subsequent requests. This is a valid strategy, but I've always found it cumbersome to setup and manage. I also like to know
   exactly what is being returned in requests.
+  1. Use Liskov substitution to replace your API client interface with a mocked out module which mimics the behaviour of your adapter. While this is an excellent way
+  to design your code, and a good idea to ensure your interface contracts, it falls short when doing integration tests because you're not actually testing the code
+  that will be running in production.
   1. Set up your own mock server which will respond to real HTTP requests and thus test your entire code path just like it would perform in production.
 
   Of all the options I prefer the last and it's what I do in all my Elixir projects. If you do it from scratch, it's only 2 files and takes very little
