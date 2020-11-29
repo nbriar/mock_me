@@ -38,7 +38,7 @@ defmodule MockMe do
   ## Setup
 
   The only things you need to do are:
-  1. add `{:mock_me, "~> 0.1.0"}` to your dependencies you `mix.exs`
+  1. add `{:mock_me, "~> 0.1.2", [only: [:test], runtime: false]}` to your dependencies in `mix.exs`
   1. configure your code to point to the mock server url `http://localhost:<port (9081)>`
   1. configure your routes in your `test/test_helper.exs` file
   1. start the `MockMe` server in your `/test/test_help.exs` file
