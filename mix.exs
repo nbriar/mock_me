@@ -46,7 +46,7 @@ defmodule MockMe.MixProject do
 
   defp package() do
     [
-      # These are the default files included in the package
+      name: "MockMe",
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
       licenses: ["MIT"],
       links: %{
