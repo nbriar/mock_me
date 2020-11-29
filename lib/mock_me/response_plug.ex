@@ -41,8 +41,7 @@ defmodule MockMe.ResponsePlug do
     send_resp(
       conn,
       404,
-      %{error: message}
-      |> Jason.encode!()
+      message
     )
   end
 end

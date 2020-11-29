@@ -34,7 +34,7 @@ defmodule MockMe.Route do
     responses: [
       %Response{
         flag: :success,
-        body: %{data: "Congrats! The request was a success."} |> Jason.encode!()
+        body: "Congrats! The request was a success."
       }
     ]
   ]
