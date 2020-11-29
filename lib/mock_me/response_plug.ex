@@ -22,9 +22,7 @@ defmodule MockMe.ResponsePlug do
         conn
         |> send_resp(
           500,
-          Jason.encode!(%{
-            data: "there's no mock for that test case [#{route.name}, #{flag_value}]"
-          })
+          "{\"data\":\"there's no mock for that test case [#{route.name}, #{flag_value}]\"}"
         )
 
       res ->
