@@ -5,7 +5,7 @@ defmodule MockMe.MixProject do
   def project do
     [
       app: :mock_me,
-      version: "0.1.1",
+      version: "0.1.2",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -45,7 +45,6 @@ defmodule MockMe.MixProject do
 
   defp package() do
     [
-      name: "MockMe",
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*),
       licenses: ["MIT"],
       links: %{
