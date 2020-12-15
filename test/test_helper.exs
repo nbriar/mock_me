@@ -8,7 +8,7 @@ route = %MockMe.Route{
   path: "/test-path",
   responses: [
     %MockMe.Response{flag: :success, body: "test-body"},
-    %MockMe.Response{flag: :failure, body: "test-failure-body"}
+    %MockMe.Response{flag: :failure, body: "test-failure-body", status_code: 422}
   ]
 }
 
