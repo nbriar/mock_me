@@ -4,6 +4,7 @@ defmodule MockMe.ResponsePlug do
   """
   import Plug.Conn
   require Logger
+
   def init(options), do: options
 
   def call(%{assigns: %{route: route}} = conn, _opts) do
@@ -27,6 +28,8 @@ defmodule MockMe.ResponsePlug do
 
       res ->
         conn
+        |> set_response_headers(res)
+        |> set_response_cookies(res)
         |> send_resp(
           res.status_code,
           res.body
@@ -43,5 +46,23 @@ defmodule MockMe.ResponsePlug do
       404,
       message
     )
+  end
+
+  def set_response_headers(conn, %{headers: []}), do: conn
+
+  def set_response_headers(conn, %{headers: headers}) do
+    Enum.reduce(headers, conn, fn {header, value}, conn ->
+      put_resp_header(conn, header, value)
+    end)
+  end
+
+  def set_response_cookies(conn, %{cookies: []}), do: conn
+
+  def set_response_cookies(conn, %{cookies: cookies}) do
+    conn = %{conn | secret_key_base: "some_key"}
+
+    Enum.reduce(cookies, conn, fn {name, attrs, options}, conn ->
+      put_resp_cookie(conn, name, attrs, options)
+    end)
   end
 end
