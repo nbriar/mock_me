@@ -69,5 +69,28 @@ defmodule MockMeTest do
 
       assert resp_body =~ "has not been defined"
     end
+
+    test "sets passed in headers" do
+      assert MockMe.set_response(:test_headers, :success)
+
+      assert {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} =
+               HTTPoison.get("http://localhost:9081/test-headers")
+
+      assert Enum.any?(headers, fn item -> {"content-type", "application/xml"} == item end)
+    end
+
+    test "sets passed in cookies" do
+      assert MockMe.set_response(:test_cookies, :success)
+
+      assert {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} =
+               HTTPoison.get("http://localhost:9081/test-cookies")
+
+      assert Enum.any?(headers, fn item ->
+               case item do
+                 {"set-cookie", "my-cookie=" <> cookie} -> !is_nil(cookie)
+                 _ -> false
+               end
+             end)
+    end
   end
 end
