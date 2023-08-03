@@ -5,7 +5,7 @@ defmodule MockMe.MixProject do
   def project do
     [
       app: :mock_me,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -27,9 +27,9 @@ defmodule MockMe.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.0.0", [only: [:dev, :test], runtime: false]},
+      {:credo, "~> 1.7", [only: [:dev, :test], runtime: false]},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
-      {:httpoison, "~> 1.7", [only: [:dev, :test], runtime: false]},
+      {:httpoison, "~> 2.1", [only: [:dev, :test], runtime: false]},
       {:plug, "~> 1.11"},
       {:plug_cowboy, "~> 2.0"}
     ]
