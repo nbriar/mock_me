@@ -1,6 +1,6 @@
 # MockMe
 
-
+<!-- README START -->
 
 MockMe is a simple mock server used to mock out your third party services in your tests. Unlike many mocking
 solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
@@ -162,4 +162,5 @@ defmodule MockMePhoenixExample.Services.StarWarsTest do
 end
 ```
 
+<!-- README END -->
 

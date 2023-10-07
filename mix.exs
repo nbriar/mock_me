@@ -12,7 +12,10 @@ defmodule MockMe.MixProject do
       name: "MockMe",
       description: description(),
       package: package(),
-      source_url: "https://github.com/nbriar/mock_me"
+      source_url: "https://github.com/nbriar/mock_me",
+      docs: [
+        main: "MockMe"
+      ]
     ]
   end
 
