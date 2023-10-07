@@ -1,5 +1,7 @@
 # MockMe
 
+
+
 MockMe is a simple mock server used to mock out your third party services in your tests. Unlike many mocking
 solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
 the `MockMe.set_response(:test, :result)` function in your tests.
