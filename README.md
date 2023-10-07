@@ -1,5 +1,7 @@
 # MockMe
 
+
+
 MockMe is a simple mock server used to mock out your third party services in your tests. Unlike many mocking
 solutions, MockMe starts a real HTTP server and serves real static responses which may be toggled easily using
 the `MockMe.set_response(:test, :result)` function in your tests.
@@ -17,7 +19,7 @@ by adding `mock_me` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:mock_me, "~> 0.1.0"}
+    {:mock_me, "~> 0.1.0", only: [:dev, :test]}
   ]
 end
 ```
@@ -29,7 +31,7 @@ The docs can be found at [https://hexdocs.pm/mock_me](https://hexdocs.pm/mock_me
   Most applications today obtain data from external sources using TCP. Typically, when integrating with these sources
   you have a few options when writing tests:
 
-  1. Not test the code which calls out to these services. Not an option in my opinion, but all too often this is the chosen path.
+  1. Not have automated tests around the code which calls out to these services. Not an option in my opinion.
   1. Short circuit the code paths before reaching out to the external service using some type of function overwrite mechanism
   in your tests. While better than not testing, this path often leaves you with untested code paths which could become issues or throw errors later. It also leaves you
   in a place where your tests do not acurrately document your code.
@@ -42,7 +44,7 @@ The docs can be found at [https://hexdocs.pm/mock_me](https://hexdocs.pm/mock_me
   1. Set up your own mock server which will respond to real HTTP requests and thus test your entire code path just like it would perform in production.
 
   Of all the options I prefer the last and it's what I do in all my Elixir projects. If you do it from scratch, it's only 2 files and takes very little
-  effort. However, I got tired of setting it up in all my projects so I built an abstration with simple configuration that will build the server and run
+  effort. However, I got tired of setting it up in all my projects so I built an abstraction with simple configuration that will build the server and run
   it for you in your tests.
 
   This project is built based on my own personal use. I'm certain there are other use cases and options which you may want to build into it.
@@ -52,7 +54,6 @@ The docs can be found at [https://hexdocs.pm/mock_me](https://hexdocs.pm/mock_me
 
   ## Setup
 
-  The only things you need to do are:
   1. add `{:mock_me, "~> 0.1.2", [only: [:test], runtime: false]}` to your dependencies in `mix.exs`
   1. configure your code to point to the mock server url `http://localhost:<port (9081)>`
   1. configure your routes in your `test/test_helper.exs` file
@@ -85,7 +86,7 @@ def deps do
 end
   ```
 
-  ## Initilization
+  ## Initialization
 
 
 _test/test_helpers.ex_
